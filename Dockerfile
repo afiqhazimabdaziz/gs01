@@ -44,11 +44,7 @@ RUN chown -R www-data:www-data /var/www/html \
     && chown -R www-data:www-data /var/www/html/public \
     && chmod -R 755 /var/www/html/public \
     && chown -R www-data:www-data /var/www/html/public/build \
-    && chmod -R 755 /var/www/html/public/build \
-    && chown -R www-data:www-data /var/www/html/public/css \
-    && chmod -R 755 /var/www/html/public/css \
-    && chown -R www-data:www-data /var/www/html/public/js \
-    && chmod -R 755 /var/www/html/public/js
+    && chmod -R 755 /var/www/html/public/build
 
 ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
