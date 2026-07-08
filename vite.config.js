@@ -11,10 +11,7 @@ export default defineConfig({
             refresh: true,
         }),
     ],
-    // base: process.env.APP_URL || '/',
-    // server: {
-    //     https: true,
-    // },
+    base: process.env.APP_URL || '/',
     build: {
         manifest: true,
         outDir: 'public/build',
