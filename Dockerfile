@@ -22,7 +22,7 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 COPY . /var/www/html
 
 # Copy built assets from frontend stage
-COPY --from=frontend /public/build /var/www/html/public/build
+COPY --from=frontend /app/public/build /var/www/html/public/build
 
 # Install PHP dependencies
 RUN composer install --no-interaction --optimize-autoloader --no-dev --ignore-platform-reqs
