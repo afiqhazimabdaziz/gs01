@@ -34,8 +34,21 @@ RUN php artisan key:generate && \
     php artisan route:cache && \
     php artisan view:cache
 
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache && \
-    chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
+# Set proper permissions for all files
+RUN chown -R www-data:www-data /var/www/html \
+    && chmod -R 755 /var/www/html \
+    && chown -R www-data:www-data /var/www/html/storage \
+    && chmod -R 775 /var/www/html/storage \
+    && chown -R www-data:www-data /var/www/html/bootstrap/cache \
+    && chmod -R 775 /var/www/html/bootstrap/cache \
+    && chown -R www-data:www-data /var/www/html/public \
+    && chmod -R 755 /var/www/html/public \
+    && chown -R www-data:www-data /var/www/html/public/build \
+    && chmod -R 755 /var/www/html/public/build \
+    && chown -R www-data:www-data /var/www/html/public/css \
+    && chmod -R 755 /var/www/html/public/css \
+    && chown -R www-data:www-data /var/www/html/public/js \
+    && chmod -R 755 /var/www/html/public/js
 
 ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
