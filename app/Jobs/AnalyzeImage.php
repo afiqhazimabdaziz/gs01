@@ -116,6 +116,9 @@ class AnalyzeImage implements ShouldQueue
             // Updates your phpMyAdmin visual features table
             VisualFeature::where('image_ID', $this->image->image_ID)->update($validatedData);
 
+            // 🌟 ADD THIS NEW LINE RIGHT HERE: Update the main images table columns directly!
+            $this->image->update($validatedData);
+
             // Calculate formal matching vectors for Text-Based Retrieval (TBR) tags
             $isFormal = in_array($validatedData['clothing_type'], ['Blazer', 'Kemeja', 'Baju Kurung']) && 
                         str_contains(strtolower($validatedData['background_type']), 'plain');
@@ -143,6 +146,9 @@ class AnalyzeImage implements ShouldQueue
             ];
             VisualFeature::where('image_ID', $this->image->image_ID)->update($fallbackData);
             
+            // 🌟 ADD THIS LINE HERE TOO:
+            $this->image->update($fallbackData);
+
             throw $e; // Triggers backoff retries handling high demand safely
         }
     }

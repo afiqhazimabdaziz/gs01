@@ -77,7 +77,7 @@ class UploadController extends Controller
         }); 
 
         // 3. Dispatch the background AI analysis job outside the transaction lock
-        AnalyzeImage::dispatch($image);
+        AnalyzeImage::dispatch($image)->afterCommit();
 
         // 4. Redirect back to dashboard layout template frame
         return redirect()->route('dashboard')->with('success', 'Image uploaded! Your GS01 AI model is analyzing it now.');
