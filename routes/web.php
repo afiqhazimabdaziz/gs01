@@ -35,20 +35,3 @@ Route::middleware('auth')->group(function () {
 });
 
 require __DIR__.'/auth.php';
-
-// 🌟 EMERGENCY LUBANG FOR FIXING BROKEN STORAGE SYMLINKS VIA BROWSER
-Route::get('/storage-link', function () {
-    $linkFolder = public_path('storage');
-    
-    if (file_exists($linkFolder) || is_link($linkFolder)) {
-        // Safe cross-platform removal of old or broken symbolic links
-        if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
-            @exec('rd /s /q "' . $linkFolder . '"');
-        } else {
-            @unlink($linkFolder);
-        }
-    }
-    
-    \Illuminate\Support\Facades\Artisan::call('storage:link');
-    return 'Storage symlink successfully recreated! Your images are ready to display.';
-});
