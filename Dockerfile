@@ -78,9 +78,6 @@ RUN a2dismod mpm_event || true \
     && a2enmod mpm_prefork \
     && a2enmod rewrite
 
-# Enable Apache rewrite
-RUN a2enmod rewrite
-
 
 # Create startup script
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
