@@ -2,37 +2,34 @@
 
 set -e
 
-
 echo "Preparing Laravel storage..."
 
 
-# Remove wrong storage folder
-if [ -d "/var/www/html/public/storage" ] && \
-   [ ! -L "/var/www/html/public/storage" ]; then
+STORAGE_LINK="/var/www/html/public/storage"
 
-    echo "Removing incorrect public/storage directory..."
 
-    rm -rf /var/www/html/public/storage
+# Remove existing wrong storage folder/link
+if [ -e "$STORAGE_LINK" ] || [ -L "$STORAGE_LINK" ]; then
+
+    echo "Removing existing storage link..."
+
+    rm -rf "$STORAGE_LINK"
+
 fi
 
 
-# Create storage symlink
-php artisan storage:link || true
+# Create Laravel storage link
+php artisan storage:link
 
 
-# Cache Laravel config
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache
 
 
-# Fix permissions
 chown -R www-data:www-data storage bootstrap/cache
 
 chmod -R 775 storage bootstrap/cache
-
-
-echo "Starting Apache..."
 
 
 exec apache2-foreground

@@ -73,6 +73,10 @@ RUN sed -ri \
     /etc/apache2/apache2.conf \
     /etc/apache2/conf-available/*.conf
 
+# Enable Apache modules
+RUN a2dismod mpm_event || true \
+    && a2enmod mpm_prefork \
+    && a2enmod rewrite
 
 # Enable Apache rewrite
 RUN a2enmod rewrite
