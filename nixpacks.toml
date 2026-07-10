@@ -1,5 +1,5 @@
 [phases.setup]
-nixPkgs = ["nodejs_22", "php82", "supervisor"]
+nixPkgs = ["nodejs_22", "php82"]
 
 [phases.install]
 cmds = [
@@ -14,4 +14,4 @@ cmds = [
 ]
 
 [start]
-cmd = "supervisord -c supervisord.conf"
+cmd = "./start.sh"
