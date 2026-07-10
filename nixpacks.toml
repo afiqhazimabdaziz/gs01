@@ -1,2 +1,17 @@
 [phases.setup]
-nixPkgs = ["nodejs_22"]
+nixPkgs = ["nodejs_22", "php82", "php82Packages.composer"]
+
+[phases.install]
+cmds = [
+  "composer install --ignore-platform-reqs",
+  "npm ci --legacy-peer-deps"
+]
+
+[phases.build]
+cmds = [
+  "composer install --no-dev --optimize-autoloader",
+  "npm run build"
+]
+
+[start]
+cmd = "supervisord -c supervisord.conf"
