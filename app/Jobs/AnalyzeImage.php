@@ -12,6 +12,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class AnalyzeImage implements ShouldQueue
 {
@@ -20,7 +21,7 @@ class AnalyzeImage implements ShouldQueue
     /**
      * Max processing attempts allowed before declaring permanent failure.
      */
-    public $tries = 3; 
+    public $tries = 3;
 
     /**
      * Progressive incremental cooling down intervals (Handles API rate limits).
@@ -32,7 +33,8 @@ class AnalyzeImage implements ShouldQueue
 
     public $image;
 
-    public function __construct(Image $image) {
+    public function __construct(Image $image)
+    {
         $this->image = $image;
     }
 
@@ -41,50 +43,39 @@ class AnalyzeImage implements ShouldQueue
         try {
             $fileName = $this->image->file_name;
 
-            // 🌟 NEW LIVE URL STREAMING MECHANISM
-            // Grabs the image over the network from your live production storage drive
-            $liveUrl = 'https://gs01-production.up.railway.app/storage/' . $fileName;
+            // ✅ FIX: Use Laravel Storage instead of URLs and file paths
+            $disk = Storage::disk('public');
+            $filePath = $fileName; // If stored directly in public disk root
 
-            try {
-                $fileContents = @file_get_contents($liveUrl);
-                if ($fileContents === false) {
-                    throw new \Exception("Could not stream file from production storage URL endpoint.");
-                }
-                $imageData = base64_encode($fileContents);
-            } catch (\Exception $urlException) {
-                Log::warning("URL stream failed, trying emergency local volume paths: " . $urlException->getMessage());
-                
-                // Emergency local disk lookups if needed
-                if (file_exists(public_path('storage/' . $fileName))) {
-                    $filePath = public_path('storage/' . $fileName);
-                } elseif (file_exists(public_path($fileName))) {
-                    $filePath = public_path($fileName);
-                } elseif (file_exists(storage_path('app/public/' . $fileName))) {
-                    $filePath = storage_path('app/public/' . $fileName);
-                } else {
-                    Log::error("File absolutely not found anywhere for analysis: " . $fileName);
-                    return;
-                }
-                $imageData = base64_encode(file_get_contents($filePath));
+            // If stored in a subdirectory:
+            // $filePath = 'images/' . $fileName;
+
+            if (!$disk->exists($filePath)) {
+                Log::error("Image file not found: " . $filePath);
+                $this->fail(new \Exception("Image file missing for ID: " . $this->image->image_ID));
+                return;
             }
+
+            $imageContents = $disk->get($filePath);
+            $imageData = base64_encode($imageContents);
 
             // Determine image format 
             $lowercaseFormat = strtolower($this->image->image_format);
             $prompt = "You are an automated profile picture auditing system for a university database. " .
-                      "Analyze this image and return a strict JSON object with these EXACT keys: " .
-                      "clothing_type (must be exactly 'Blazer', 'Kemeja', 'Baju Kurung', or 'Casual'), " .
-                      "background_type (must be exactly 'Plain White', 'Plain Blue', or 'Complex / Outdoor'), " .
-                      "background_color (hex code string like '#FFFFFF'), " .
-                      "face_position ('Center' or 'Tilted'), " .
-                      "camera_posture ('Facing Camera' or 'Side Profile'), " .
-                      "body_composition ('Half Body' or 'Full Body'). " .
-                      "Return ONLY raw valid JSON text. No markdown backticks, no conversational fillers.";
+                "Analyze this image and return a strict JSON object with these EXACT keys: " .
+                "clothing_type (must be exactly 'Blazer', 'Kemeja', 'Baju Kurung', or 'Casual'), " .
+                "background_type (must be exactly 'Plain White', 'Plain Blue', or 'Complex / Outdoor'), " .
+                "background_color (hex code string like '#FFFFFF'), " .
+                "face_position ('Center' or 'Tilted'), " .
+                "camera_posture ('Facing Camera' or 'Side Profile'), " .
+                "body_composition ('Half Body' or 'Full Body'). " .
+                "Return ONLY raw valid JSON text. No markdown backticks, no conversational fillers.";
 
             // CALL GOOGLE GEMINI WITH VISION BLOB PAYLOAD
             $client = Gemini::client(env('GEMINI_API_KEY'));
 
-            $geminiMimeType = ($lowercaseFormat === 'png') 
-                ? \Gemini\Enums\MimeType::IMAGE_PNG 
+            $geminiMimeType = ($lowercaseFormat === 'png')
+                ? \Gemini\Enums\MimeType::IMAGE_PNG
                 : \Gemini\Enums\MimeType::IMAGE_JPEG;
 
             $response = $client->generativeModel('gemini-2.5-flash')->generateContent([
@@ -129,21 +120,21 @@ class AnalyzeImage implements ShouldQueue
             $this->image->update($validatedData);
 
             // Calculate formal matching vectors for Text-Based Retrieval (TBR) tags
-            $isFormal = in_array($validatedData['clothing_type'], ['Blazer', 'Kemeja', 'Baju Kurung']) && 
-                        str_contains(strtolower($validatedData['background_type']), 'plain');
-            
+            $isFormal = in_array($validatedData['clothing_type'], ['Blazer', 'Kemeja', 'Baju Kurung']) &&
+                str_contains(strtolower($validatedData['background_type']), 'plain');
+
             $tagLabel = $isFormal ? 'formal interview' : 'informal snap';
             $tag = Tag::firstOrCreate(['tag_name' => $tagLabel]);
-            
+
             $this->image->tags()->syncWithoutDetaching([
                 $tag->tag_ID => ['user_ID' => $this->image->user_ID]
             ]);
 
             Log::info("CBR Features stored successfully via Gemini for Image ID: " . $this->image->image_ID);
-                
         } catch (\Exception $e) {
             Log::error("FICMS Queue Analysis Error: " . $e->getMessage());
-            
+            Log::error("Stack trace: " . $e->getTraceAsString());
+
             // Emergency fallback state to guarantee page rendering doesn't crash during evaluation
             $fallbackData = [
                 'clothing_type'    => 'Blazer',
@@ -154,11 +145,11 @@ class AnalyzeImage implements ShouldQueue
                 'body_composition' => 'Half Body',
             ];
             VisualFeature::where('image_ID', $this->image->image_ID)->update($fallbackData);
-            
+
             // Update main images table on crash too
             $this->image->update($fallbackData);
 
-            throw $e; 
+            throw $e;
         }
     }
 }
