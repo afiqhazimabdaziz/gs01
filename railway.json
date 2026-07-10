@@ -4,7 +4,6 @@
     "builder": "NIXPACKS"
   },
   "deploy": {
-    "startCommand": "supervisord -c supervisord.conf",
     "healthcheckPath": "/",
     "restartPolicyType": "ON_FAILURE"
   }
