@@ -25,6 +25,44 @@
                 </div>
             @enderror
 
+            <!-- 🟢 TAMBAH AYAT DI SINI -->
+            <div class="mb-4 p-4 bg-slate-900/60 border border-slate-700/50 rounded-xl">
+            <div class="flex items-center gap-2 mb-3">
+                <span class="flex h-2 w-2 rounded-full bg-indigo-400"></span>
+                <h4 class="text-xs font-bold uppercase tracking-wider text-indigo-400">Kriteria Imej Formal (Standard):</h4>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+                <!-- Lajur Kiri -->
+                <div class="space-y-2">
+                    <div class="flex items-center justify-between p-2 bg-slate-800/50 rounded-lg border border-slate-700/30">
+                        <span class="text-slate-400 font-medium">Background Color</span>
+                        <span class="px-2 py-0.5 bg-indigo-950 text-indigo-300 border border-indigo-800 rounded text-[10px] font-bold uppercase">Plain White / Blue</span>
+                    </div>
+                    <div class="flex items-center justify-between p-2 bg-slate-800/50 rounded-lg border border-slate-700/30">
+                        <span class="text-slate-400 font-medium">Clothes</span>
+                        <span class="px-2 py-0.5 bg-indigo-950 text-indigo-300 border border-indigo-800 rounded text-[10px] font-bold uppercase">Kemeja / Blazer / Baju Kurung</span>
+                    </div>
+                    <div class="flex items-center justify-between p-2 bg-slate-800/50 rounded-lg border border-slate-700/30">
+                        <span class="text-slate-400 font-medium">Face Alignment</span>
+                        <span class="px-2 py-0.5 bg-indigo-950 text-indigo-300 border border-indigo-800 rounded text-[10px] font-bold uppercase">Center</span>
+                    </div>
+                </div>
+
+                <!-- Lajur Kanan -->
+                <div class="space-y-2">
+                    <div class="flex items-center justify-between p-2 bg-slate-800/50 rounded-lg border border-slate-700/30">
+                        <span class="text-slate-400 font-medium">Camera Posture</span>
+                        <span class="px-2 py-0.5 bg-indigo-950 text-indigo-300 border border-indigo-800 rounded text-[10px] font-bold uppercase">Facing Camera</span>
+                    </div>
+                    <div class="flex items-center justify-between p-2 bg-slate-800/50 rounded-lg border border-slate-700/30">
+                        <span class="text-slate-400 font-medium">Body Composition</span>
+                        <span class="px-2 py-0.5 bg-indigo-950 text-indigo-300 border border-indigo-800 rounded text-[10px] font-bold uppercase">Half Body</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
             <div class="p-8 bg-slate-900/50 border border-dashed border-slate-700 rounded-xl transition hover:border-slate-600 flex flex-col items-center justify-center text-center">
                 <svg class="w-12 h-12 text-slate-500 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
